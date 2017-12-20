@@ -342,6 +342,20 @@ class Tab extends EventEmitter {
             TabGroupPrivate.activateRecentTab.bind(tabGroup)();
         }
     }
+
+    setShortcutKey (shortcutKey) {
+        if (this.isClosed) return;
+        let span = this.tabElements.shortcutKey;
+        span.innerHTML = shortcutKey;
+        this.shortcutKey = shortcutKey;
+        this.emit("shortcut-changed", shortcutKey, this);
+        return this;
+    }
+
+    getShortcutKey (shortcutKey) {
+        if (this.isClosed) return;
+        return this.shortcutKey;
+    }
 }
 
 const TabPrivate = {
@@ -351,7 +365,7 @@ const TabPrivate = {
         // Create tab element
         let tab = this.tab = document.createElement("div");
         tab.classList.add(tabClass);
-        for (let el of ["icon", "title", "buttons", "badge"]) {
+        for (let el of ["icon", "title", "shortcutKey", "buttons", "badge"]) {
             let span = tab.appendChild(document.createElement("span"));
             span.classList.add(`${tabClass}-${el}`);
             this.tabElements[el] = span;
@@ -362,7 +376,6 @@ const TabPrivate = {
         this.setIcon(this.iconURL, this.icon);
         TabPrivate.initTabButtons.bind(this)();
         TabPrivate.initTabClickHandler.bind(this)();
-
         this.tabGroup.tabContainer.appendChild(this.tab);
     },
 
@@ -426,7 +439,7 @@ const TabPrivate = {
         }
 
         this.tabGroup.viewContainer.appendChild(this.webview);
-    }
+    }    
 };
 
 module.exports = TabGroup;
