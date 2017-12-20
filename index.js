@@ -158,6 +158,7 @@ class Tab extends EventEmitter {
     constructor (tabGroup, id, args) {
         super();
         this.tabGroup = tabGroup;
+        this.options = args;
         this.id = id;
         this.title = args.title;
         this.badge = args.badge;
@@ -214,6 +215,7 @@ class Tab extends EventEmitter {
 
     setIcon (iconURL, icon) {
         if (this.isClosed) return;
+        if(this.iconURL  == iconURL && this.icon == icon) return;
         this.iconURL = iconURL;
         this.icon = icon;
         let span = this.tabElements.icon;
@@ -408,8 +410,10 @@ const TabPrivate = {
         if(this.webviewEvents){
             let events = this.webviewEvents;
             for(let key in events){
+                let event_name = "webview-" + key;
+                this.on(event_name, events[key].bind(this.webview));
                 this.webview.addEventListener(key, function(){
-                    let args = ["webview-" + key, this].concat(Array.prototype.slice.call(arguments));
+                    let args = [event_name, self].concat(Array.prototype.slice.call(arguments));
                     this.emit.apply(this, args);
                 }.bind(this));
             }
@@ -426,4 +430,4 @@ const TabPrivate = {
     }
 };
 
-module.exports = { TabGroup: TabGroup, Tab: Tab } ;
+module.exports = TabGroup;
