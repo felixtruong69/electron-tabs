@@ -8,18 +8,15 @@ if (!document) {
 (function () {
     const styles = `
         webview {
-            visibility: hidden;
-            width: 0px;
-            height: 0px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width:100%;
+            height:100%;
+            z-index: -1;
         }
         webview.visible {
-            visibility: visible;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
+            z-index: 1;
         }
     `;
     let styleTag = document.createElement("style");
@@ -43,6 +40,7 @@ class TabGroup extends EventEmitter {
         };
         this.tabContainer = document.querySelector(options.tabContainerSelector);
         this.viewContainer = document.querySelector(options.viewContainerSelector);
+        this.viewContainer.style.position = 'relative';
         this.tabs = [];
         this.newTabId = 0;
         TabGroupPrivate.initNewTabButton.bind(this)();
@@ -167,6 +165,7 @@ class Tab extends EventEmitter {
         this.icon = args.icon;
         this.closable = args.closable === false ? false : true;
         this.webviewAttributes = args.webviewAttributes || {};
+        this.webviewEvents = args.webviewEvents || {};
         this.webviewAttributes.src = args.src;
         this.tabElements = {};
         TabPrivate.initTab.bind(this)();
@@ -398,6 +397,7 @@ const TabPrivate = {
     },
 
     initWebview: function () {
+        var self = this;
         this.webview = document.createElement("webview");
 
         const tabWebviewDidFinishLoadHandler = function (e) {
@@ -405,7 +405,15 @@ const TabPrivate = {
         };
 
         this.webview.addEventListener("did-finish-load", tabWebviewDidFinishLoadHandler.bind(this), false);
-
+        if(this.webviewEvents){
+            let events = this.webviewEvents;
+            for(let key in events){
+                this.webview.addEventListener(key, function(){
+                    let args = ["webview-" + key, this].concat(Array.prototype.slice.call(arguments));
+                    this.emit.apply(this, args);
+                }.bind(this));
+            }
+        }
         this.webview.classList.add(this.tabGroup.options.viewClass);
         if (this.webviewAttributes) {
             let attrs = this.webviewAttributes;
@@ -418,4 +426,4 @@ const TabPrivate = {
     }
 };
 
-module.exports = TabGroup;
+module.exports = { TabGroup: TabGroup, Tab: Tab } ;
