@@ -215,7 +215,6 @@ class Tab extends EventEmitter {
 
     setIcon (iconURL, icon) {
         if (this.isClosed) return;
-        if(this.iconURL  == iconURL && this.icon == icon) return;
         this.iconURL = iconURL;
         this.icon = icon;
         let span = this.tabElements.icon;
