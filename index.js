@@ -419,15 +419,11 @@ const TabPrivate = {
         };
 
         this.webview.addEventListener("did-finish-load", tabWebviewDidFinishLoadHandler.bind(this), false);
+
         if(this.webviewEvents){
             let events = this.webviewEvents;
             for(let key in events){
-                let event_name = "webview-" + key;
-                this.on(event_name, events[key].bind(this.webview));
-                this.webview.addEventListener(key, function(){
-                    let args = [event_name, self].concat(Array.prototype.slice.call(arguments));
-                    this.emit.apply(this, args);
-                }.bind(this));
+                this.webview.addEventListener(key, events[key].bind(this));
             }
         }
         this.webview.classList.add(this.tabGroup.options.viewClass);
@@ -437,7 +433,6 @@ const TabPrivate = {
                 this.webview.setAttribute(key, attrs[key]);
             }
         }
-
         this.tabGroup.viewContainer.appendChild(this.webview);
     }    
 };
