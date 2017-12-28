@@ -165,14 +165,15 @@ class Tab extends EventEmitter {
         this.iconURL = args.iconURL;
         this.icon = args.icon;
         this.closable = args.closable === false ? false : true;
-        this.webviewAttributes = args.webviewAttributes || {};
-        this.webviewEvents = args.webviewEvents || {};
-        this.webviewAttributes.src = args.src;
         this.tabElements = {};
-        TabPrivate.initTab.bind(this)();
+        // Default view is webview
+        this.isWebviewTab = this.options.isWebviewTab === undefined ? true : this.options.isWebviewTab;
 
-        isWebview = this.options.viewtype == 'custom' ? false : true;
-        if(isWebview){
+        TabPrivate.initTab.bind(this)();
+        if(this.isWebviewTab){
+            this.webviewAttributes = args.webviewAttributes || {};
+            this.webviewEvents = args.webviewEvents || {};
+            this.webviewAttributes.src = args.src;
             TabPrivate.initWebview.bind(this)();
         } else {
             TabPrivate.initView.bind(this)();
