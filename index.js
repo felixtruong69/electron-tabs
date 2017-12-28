@@ -170,7 +170,14 @@ class Tab extends EventEmitter {
         this.webviewAttributes.src = args.src;
         this.tabElements = {};
         TabPrivate.initTab.bind(this)();
-        TabPrivate.initWebview.bind(this)();
+
+        isWebview = this.options.viewtype == 'custom' ? false : true;
+        if(isWebview){
+            TabPrivate.initWebview.bind(this)();
+        } else {
+            TabPrivate.initView.bind(this)();
+        }
+            
         if (args.visible !== false) {
             this.show();
         }
@@ -285,12 +292,12 @@ class Tab extends EventEmitter {
         let activeTab = this.tabGroup.getActiveTab();
         if (activeTab) {
             activeTab.tab.classList.remove("active");
-            activeTab.webview.classList.remove("visible");
+            activeTab.view.classList.remove("visible");
         }
         TabGroupPrivate.setActiveTab.bind(this.tabGroup)(this);
         this.tab.classList.add("active");
-        this.webview.classList.add("visible");
-        this.webview.focus();
+        this.view.classList.add("visible");
+        this.view.focus();
         this.emit("active", this);
         return this;
     }
@@ -333,7 +340,7 @@ class Tab extends EventEmitter {
         this.isClosed = true;
         let tabGroup = this.tabGroup;
         tabGroup.tabContainer.removeChild(this.tab);
-        tabGroup.viewContainer.removeChild(this.webview);
+        tabGroup.viewContainer.removeChild(this.view);
         let activeTab = this.tabGroup.getActiveTab();
         TabGroupPrivate.removeTab.bind(tabGroup)(this, true);
         this.emit("close", this);
@@ -410,9 +417,17 @@ const TabPrivate = {
         this.tab.addEventListener("mousedown", tabMouseDownHandler.bind(this), false);
     },
 
+    initView: function(){
+        var self = this;
+        this.view = document.createElement('div');
+        this.view.classList.add(this.tabGroup.options.viewClass);
+        this.tabGroup.viewContainer.appendChild(this.view);
+        this.emit('view-ready', this);
+    },
+
     initWebview: function () {
         var self = this;
-        this.webview = document.createElement("webview");
+        this.view = this.webview = document.createElement("webview");
 
         const tabWebviewDidFinishLoadHandler = function (e) {
             this.emit("webview-ready", this);
