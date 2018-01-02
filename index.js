@@ -167,7 +167,7 @@ class Tab extends EventEmitter {
         this.closable = args.closable === false ? false : true;
         this.tabElements = {};
         // Default view is webview
-        this.isWebviewTab = this.options.isWebviewTab === undefined ? true : this.options.isWebviewTab;
+        this.isWebviewTab = this.options.isWebviewTab === undefined || this.options.isWebviewTab;
 
         TabPrivate.initTab.bind(this)();
         if(this.isWebviewTab){
